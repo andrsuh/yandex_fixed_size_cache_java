@@ -2,9 +2,7 @@ package andrey.yandex;
 
 import java.util.*;
 
-/**
- * Created by andrey on 03.05.16.
- */
+
 public class LRUCache<K, V> extends AbstractFixedSizeCache<K, V> {
     public LRUCache() {
         this(DEFAULT_CAPACITY);
@@ -16,7 +14,7 @@ public class LRUCache<K, V> extends AbstractFixedSizeCache<K, V> {
                 // the third parameter == true sets order which map entries were last accessed
                 // from least-recently accessed to most-recently (access-order)
                 @Override
-                protected boolean removeEldestEntry(final Map.Entry eldrest) {
+                protected boolean removeEldestEntry(final Map.Entry eldest) {
                     return size() > capacity; // will remove last accessed entry
                 }
             },
