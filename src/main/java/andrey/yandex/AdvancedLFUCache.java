@@ -2,38 +2,45 @@ package andrey.yandex;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by andrey on 06.05.16.
  */
 
-public class AdvancedLFUCache<K, V> extends AbstractFixedSizeCache<K, V> {
-    private final Map<K, Map.Entry<V, FreqNode<K>>> lfuCache = new HashMap<>();
-
+public class AdvancedLFUCache<K, V> implements FixedSizeCache<K, V> {
+    private final Map<K, Map.Entry<V, FreqNode<K>>> cache = new HashMap<>();
+    private int capacity;
     private FreqNode<K> headFrequency;
+
+    private AtomicLong hits = new AtomicLong(0);  // number of successful attempts to get value for a key
+    private AtomicLong misses = new AtomicLong(0); // number of failed attempts
+
+    private Lock lock = new ReentrantLock();
 
     public AdvancedLFUCache() {
         this(DEFAULT_CAPACITY);
     }
 
     public AdvancedLFUCache(int capacity) {
-        super(null, capacity);
+        this.capacity = capacity;
         headFrequency = new FreqNode<>();
     }
 
     @Override
     public V get(K key) {
-        lock.writeLock().lock();
+        lock.lock();
 
         try {
-            if (!lfuCache.containsKey(key)) {
+            if (!cache.containsKey(key)) {
                 misses.incrementAndGet();
                 return null;
             }
 
             hits.incrementAndGet();
 
-            Map.Entry<V, FreqNode<K>> value = lfuCache.get(key);
+            Map.Entry<V, FreqNode<K>> value = cache.get(key);
             FreqNode<K> currentKeyFrequency = value.getValue();
             FreqNode<K> nextFrequency = currentKeyFrequency.next;
 
@@ -43,7 +50,7 @@ public class AdvancedLFUCache<K, V> extends AbstractFixedSizeCache<K, V> {
             nextFrequency.keys.add(key);
 
             Map.Entry<V, FreqNode<K>> newValue = new AbstractMap.SimpleEntry<>(value.getKey(), nextFrequency);
-            lfuCache.put(key, newValue);
+            cache.put(key, newValue);
 
             currentKeyFrequency.keys.remove(key);
 
@@ -53,32 +60,32 @@ public class AdvancedLFUCache<K, V> extends AbstractFixedSizeCache<K, V> {
 
             return value.getKey();
         } finally {
-            lock.writeLock().unlock();
+            lock.unlock();
         }
     }
 
     @Override
     public void clear() {
-        lock.writeLock().lock();
+        lock.lock();
         try {
             hits = new AtomicLong(0);
             misses = new AtomicLong(0);
             headFrequency = new FreqNode<>();
-            lfuCache.clear();
+            cache.clear();
         } finally {
-            lock.writeLock().unlock();
+            lock.unlock();
         }
     }
 
     @Override
     public void put(K key, V value) {
-        lock.writeLock().lock();
+        lock.lock();
         try {
-            if (lfuCache.containsKey(key)) {
+            if (cache.containsKey(key)) {
                 return;
             }
 
-            if (lfuCache.size() >= capacity) {
+            if (cache.size() >= capacity) {
                 remove();
             }
 
@@ -88,15 +95,25 @@ public class AdvancedLFUCache<K, V> extends AbstractFixedSizeCache<K, V> {
             }
 
             frequency.keys.add(key);
-            lfuCache.put(key, new AbstractMap.SimpleEntry<>(value, frequency));
+            cache.put(key, new AbstractMap.SimpleEntry<>(value, frequency));
         } finally {
-            lock.writeLock().unlock();
+            lock.unlock();
         }
     }
 
     @Override
     public int size() {
-        return lfuCache.size();
+        return cache.size();
+    }
+
+    @Override
+    public boolean contains(K key) {
+        lock.lock();
+        try {
+            return cache.containsKey(key);
+        } finally {
+            lock.unlock();
+        }
     }
 
     private void remove() {
@@ -110,14 +127,22 @@ public class AdvancedLFUCache<K, V> extends AbstractFixedSizeCache<K, V> {
             v = k;
             break;
         }
-//                System.out.println("Remove: " + v);
         headFrequency.next.keys.remove(v);
-        lfuCache.remove(v);
-//                System.out.println("Size after: " + lfuCache.size());
+        cache.remove(v);
 
         if (headFrequency.next.keys.isEmpty()) {
             headFrequency.next.removeNode();
         }
+    }
+
+    @Override
+    public long getHits() {
+        return hits.longValue();
+    }
+
+    @Override
+    public long getMisses() {
+        return misses.longValue();
     }
 
     private static class FreqNode<K> {
@@ -150,49 +175,5 @@ public class AdvancedLFUCache<K, V> extends AbstractFixedSizeCache<K, V> {
             prev.next = next;
             next.prev = prev;
         }
-    }
-
-    public static int fibbWithCache(int n, AbstractFixedSizeCache<Integer, Integer> cache) {
-        if (n < 2) {
-            return 1;
-        }
-
-        if (cache.get(n) == null) {
-            int a = fibbWithCache(n - 1, cache);
-            int b = fibbWithCache(n - 2, cache);
-
-            cache.put(n, a + b);
-        }
-
-        return cache.get(n);
-    }
-
-    public static int fibbWithoutCache(int n) {
-        if (n < 2) {
-            return 1;
-        }
-
-        int a = fibbWithoutCache(n - 1);
-        int b = fibbWithoutCache(n - 2);
-
-        return a + b;
-    }
-
-    public static void main(String[] args) {
-        AdvancedLFUCache<Integer, Integer> cache = new AdvancedLFUCache<>(35);
-
-        long start = System.currentTimeMillis();
-        int res = fibbWithCache(40, cache);
-        long end = System.currentTimeMillis();
-        System.out.println("Execute time with caching ---> " + (end - start));
-
-        System.out.println("Result --> " + res);
-
-        start = System.currentTimeMillis();
-        res = fibbWithoutCache(40);
-        end = System.currentTimeMillis();
-        System.out.println("Execute time without caching ---> " + (end - start));
-        System.out.println("Result --> " + res);
-
     }
 }
