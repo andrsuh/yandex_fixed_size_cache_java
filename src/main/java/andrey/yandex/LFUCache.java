@@ -11,6 +11,10 @@ public class LFUCache<K, V> extends AbstractFixedSizeCache<K, V> {
     private final Map<K, Integer> frequencies = new HashMap<>(); // store key and its actually frequency
     private final Queue<Map.Entry<Integer, K>> frequencies_queue;
 
+    public LFUCache() {
+        this(DEFAULT_CAPACITY);
+    }
+
     public LFUCache(int capacity) {
         super(new HashMap<>(), capacity);
 
@@ -64,21 +68,4 @@ public class LFUCache<K, V> extends AbstractFixedSizeCache<K, V> {
         cache.remove(pair.getValue());
         frequencies.remove(pair.getValue());
     }
-
-    public static void main(String[] args) {
-        LFUCache<String, Integer> cache = new LFUCache<>(2);
-        cache.put("a", 1);
-        cache.put("b", 2);
-        cache.get("a");
-        cache.put("c", 3);
-        cache.put("d", 4);
-        cache.put("e", 5);
-        cache.get("e");
-        cache.put("f", 6);
-
-//        Map<Integer, Integer> m = new HashMap<>(-10);
-
-        System.out.println(cache.get("f"));
-    }
-
 }
