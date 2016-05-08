@@ -1,7 +1,10 @@
 package andrey.yandex;
 
-import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Queue;
 
 /**
  * LFU cache implementation based on priority queue provides

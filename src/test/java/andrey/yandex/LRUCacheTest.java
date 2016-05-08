@@ -1,11 +1,8 @@
 package andrey.yandex;
 
-import static org.fest.assertions.api.Assertions.assertThat;
 import org.junit.Test;
 
-/**
- * Created by andrey on 08.05.16.
- */
+import static org.fest.assertions.api.Assertions.assertThat;
 
 public class LRUCacheTest {
     @Test
@@ -35,10 +32,10 @@ public class LRUCacheTest {
         FixedSizeCache<Character, Integer> cache = new LRUCache<>(5);
 
         for (char key = 'a'; key < 'f'; key++) {
-            cache.put(key, (int)key);
+            cache.put(key, (int) key);
         }
 
-        assertThat(cache.size()).isEqualTo(5); // now cache contains 3 keys {a, b, c, d, e}
+        assertThat(cache.size()).isEqualTo(5); // now cache contains 5 keys {a, b, c, d, e}
 
         for (char key = 'e'; key >= 'a'; key--) {
             cache.get(key);

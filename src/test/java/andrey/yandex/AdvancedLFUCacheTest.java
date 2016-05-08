@@ -4,11 +4,11 @@ import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
-public class FIFOCacheTest {
+public class AdvancedLFUCacheTest {
 
     @Test
     public void testDefaultConstructor() {
-        FixedSizeCache<String, Integer> cache = new FIFOCache<>();
+        FixedSizeCache<String, Integer> cache = new AdvancedLFUCache<>();
 
         assertThat(cache.size()).isEqualTo(0);
         assertThat(cache.get("a")).isNull();
@@ -19,7 +19,7 @@ public class FIFOCacheTest {
 
     @Test
     public void testCapacityConstructor() {
-        FixedSizeCache<String, Integer> cache = new FIFOCache<>(2);
+        FixedSizeCache<String, Integer> cache = new AdvancedLFUCache<>(2);
 
         assertThat(cache.size()).isEqualTo(0);
         assertThat(cache.get("a")).isNull();
@@ -30,7 +30,7 @@ public class FIFOCacheTest {
 
     @Test
     public void testElementsPullingPolicy() {
-        FixedSizeCache<Character, Integer> cache = new FIFOCache<>(5);
+        FixedSizeCache<Character, Integer> cache = new AdvancedLFUCache<>(5);
 
         for (char key = 'a'; key < 'f'; key++) {
             cache.put(key, (int) key);
@@ -48,7 +48,7 @@ public class FIFOCacheTest {
 
     @Test
     public void testOtherMethods() {
-        FixedSizeCache<Integer, Integer> cache = new FIFOCache<>(10);
+        FixedSizeCache<Integer, Integer> cache = new AdvancedLFUCache<>(10);
 
         for (int i = 0; i < 15; i++) {
             cache.put(i, i + 1);

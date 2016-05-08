@@ -1,15 +1,10 @@
 package andrey.yandex;
 
-import static org.fest.assertions.api.Assertions.*;
 import org.junit.Test;
 
-
-/**
- * Created by andrey on 08.05.16.
- */
+import static org.fest.assertions.api.Assertions.assertThat;
 
 public class LFUCacheTest {
-
     @Test
     public void testDefaultConstructor() {
         FixedSizeCache<String, Integer> cache = new LFUCache<>();
@@ -37,10 +32,10 @@ public class LFUCacheTest {
         FixedSizeCache<Character, Integer> cache = new LFUCache<>(5);
 
         for (char key = 'a'; key < 'f'; key++) {
-            cache.put(key, (int)key);
+            cache.put(key, (int) key);
         }
 
-        assertThat(cache.size()).isEqualTo(5); // now cache contains 3 keys {a, b, c, d, e} with frequency = 1
+        assertThat(cache.size()).isEqualTo(5); // now cache contains 5 keys {a, b, c, d, e} with frequency = 1
 
         for (char key = 'e'; key > 'a'; key--) {
             cache.get(key);

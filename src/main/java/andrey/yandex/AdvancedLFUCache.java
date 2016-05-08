@@ -12,12 +12,10 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class AdvancedLFUCache<K, V> implements FixedSizeCache<K, V> {
     private final Map<K, Map.Entry<V, FreqNode<K>>> cache = new HashMap<>();
-    private FreqNode<K> headFrequency = new FreqNode<>();
     private final int capacity;
-
     private final AtomicLong hits = new AtomicLong(0);  // number of successful attempts to get value for a key
     private final AtomicLong misses = new AtomicLong(0); // number of failed attempts
-
+    private FreqNode<K> headFrequency = new FreqNode<>();
     private Lock lock = new ReentrantLock();
 
     /**
@@ -28,7 +26,6 @@ public class AdvancedLFUCache<K, V> implements FixedSizeCache<K, V> {
     }
 
     /**
-     *
      * @param capacity maximum cache capacity
      */
     public AdvancedLFUCache(int capacity) {
