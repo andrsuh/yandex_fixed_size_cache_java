@@ -3,10 +3,12 @@ package andrey.yandex;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/**
- * Created by andrey on 04.05.16.
- */
+
 public class FIFOCache<K, V> extends AbstractFixedSizeCache<K, V> {
+
+    public FIFOCache() {
+        this(DEFAULT_CAPACITY);
+    }
 
     public FIFOCache(final int capacity) {
         super(
