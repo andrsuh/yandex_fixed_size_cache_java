@@ -12,8 +12,12 @@ public class AdvancedLFUCache<K, V> extends AbstractFixedSizeCache<K, V> {
 
     private FreqNode<K> headFrequency;
 
+    public AdvancedLFUCache() {
+        this(DEFAULT_CAPACITY);
+    }
+
     public AdvancedLFUCache(int capacity) {
-        super(capacity);
+        super(null, capacity);
         headFrequency = new FreqNode<>();
     }
 
