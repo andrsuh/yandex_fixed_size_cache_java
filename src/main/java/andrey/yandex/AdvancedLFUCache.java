@@ -6,32 +6,44 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Created by andrey on 06.05.16.
+ * LFU cache implementation based on double linked lists provides
+ * O(1) speed for get, put operations
  */
 
 public class AdvancedLFUCache<K, V> implements FixedSizeCache<K, V> {
     private final Map<K, Map.Entry<V, FreqNode<K>>> cache = new HashMap<>();
-    private int capacity;
-    private FreqNode<K> headFrequency;
+    private FreqNode<K> headFrequency = new FreqNode<>();
+    private final int capacity;
 
-    private AtomicLong hits = new AtomicLong(0);  // number of successful attempts to get value for a key
-    private AtomicLong misses = new AtomicLong(0); // number of failed attempts
+    private final AtomicLong hits = new AtomicLong(0);  // number of successful attempts to get value for a key
+    private final AtomicLong misses = new AtomicLong(0); // number of failed attempts
 
     private Lock lock = new ReentrantLock();
 
+    /**
+     * Empty constructor set maximum cache capacity = DEFAULT_CAPACITY
+     */
     public AdvancedLFUCache() {
         this(DEFAULT_CAPACITY);
     }
 
+    /**
+     *
+     * @param capacity maximum cache capacity
+     */
     public AdvancedLFUCache(int capacity) {
         this.capacity = capacity;
-        headFrequency = new FreqNode<>();
     }
 
+    /**
+     * In LFU pulling strategy every times we want to get value
+     * associated with key we must increase key frequency.
+     *
+     * @inheritDoc
+     */
     @Override
     public V get(K key) {
         lock.lock();
-
         try {
             if (!cache.containsKey(key)) {
                 misses.incrementAndGet();
@@ -40,16 +52,16 @@ public class AdvancedLFUCache<K, V> implements FixedSizeCache<K, V> {
 
             hits.incrementAndGet();
 
-            Map.Entry<V, FreqNode<K>> value = cache.get(key);
-            FreqNode<K> currentKeyFrequency = value.getValue();
+            final Map.Entry<V, FreqNode<K>> value = cache.get(key);
+            final FreqNode<K> currentKeyFrequency = value.getValue();
             FreqNode<K> nextFrequency = currentKeyFrequency.next;
 
-            if (nextFrequency == null || nextFrequency.value != currentKeyFrequency.value + 1) { // nextFrequency == headFrequency
+            if (nextFrequency == null || nextFrequency.value != currentKeyFrequency.value + 1) {
                 nextFrequency = new FreqNode<>(currentKeyFrequency.value + 1, currentKeyFrequency, nextFrequency);
             }
             nextFrequency.keys.add(key);
 
-            Map.Entry<V, FreqNode<K>> newValue = new AbstractMap.SimpleEntry<>(value.getKey(), nextFrequency);
+            final Map.Entry<V, FreqNode<K>> newValue = new AbstractMap.SimpleEntry<>(value.getKey(), nextFrequency);
             cache.put(key, newValue);
 
             currentKeyFrequency.keys.remove(key);
@@ -64,19 +76,12 @@ public class AdvancedLFUCache<K, V> implements FixedSizeCache<K, V> {
         }
     }
 
-    @Override
-    public void clear() {
-        lock.lock();
-        try {
-            hits = new AtomicLong(0);
-            misses = new AtomicLong(0);
-            headFrequency = new FreqNode<>();
-            cache.clear();
-        } finally {
-            lock.unlock();
-        }
-    }
-
+    /**
+     * Before addition if current cache size great then maximal capacity
+     * key with minimal frequency will remove
+     *
+     * @inheritDoc
+     */
     @Override
     public void put(K key, V value) {
         lock.lock();
@@ -102,6 +107,19 @@ public class AdvancedLFUCache<K, V> implements FixedSizeCache<K, V> {
     }
 
     @Override
+    public void clear() {
+        lock.lock();
+        try {
+            hits.set(0);
+            misses.set(0);
+            headFrequency = new FreqNode<>();
+            cache.clear();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
     public int size() {
         return cache.size();
     }
@@ -117,7 +135,6 @@ public class AdvancedLFUCache<K, V> implements FixedSizeCache<K, V> {
     }
 
     private void remove() {
-//        System.out.println("Size before: " + lfuCache.size());
         if (headFrequency.next == null) {
             return;
         }
