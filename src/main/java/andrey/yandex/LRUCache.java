@@ -6,6 +6,9 @@ import java.util.*;
  * Created by andrey on 03.05.16.
  */
 public class LRUCache<K, V> extends AbstractFixedSizeCache<K, V> {
+    public LRUCache() {
+        this(DEFAULT_CAPACITY);
+    }
 
     public LRUCache(int capacity) {
         super(
