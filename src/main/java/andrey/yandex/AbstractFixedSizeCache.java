@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * Created by andrey on 03.05.16.
+ * Base class for LRUCache, LFUCache, FIFOCache
  */
 
 public abstract class AbstractFixedSizeCache<K, V> implements FixedSizeCache<K, V> {
@@ -13,18 +13,9 @@ public abstract class AbstractFixedSizeCache<K, V> implements FixedSizeCache<K, 
 
     protected final Map<K, V> cache;
     protected final int capacity;
+    protected final AtomicLong hits = new AtomicLong(0);  // number of successful attempts to get value for a key
+    protected final AtomicLong misses = new AtomicLong(0); // number of failed attempts
 
-    protected AtomicLong hits = new AtomicLong(0);  // number of successful attempts to get value for a key
-    protected AtomicLong misses = new AtomicLong(0); // number of failed attempts
-
-
-//    protected AbstractFixedSizeCache(int capacity) {
-//        this(null, capacity);
-//    }
-//
-//    protected AbstractFixedSizeCache(Map<K, V> cache) {
-//        this(cache, DEFAULT_CAPACITY);
-//    }
 
     protected AbstractFixedSizeCache(Map<K, V> cache, int capacity) {
         this.cache = cache;
@@ -81,8 +72,8 @@ public abstract class AbstractFixedSizeCache<K, V> implements FixedSizeCache<K, 
     public void clear() {
         lock.writeLock().lock();
         try {
-            hits = new AtomicLong(0);
-            misses = new AtomicLong(0);
+            hits.set(0);
+            misses.set(0);
             cache.clear();
         } finally {
             lock.writeLock().unlock();
