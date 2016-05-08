@@ -24,7 +24,7 @@ public abstract class AbstractFixedSizeCache<K, V> implements FixedSizeCache<K, 
 
     @Override
     public V get(K key) {
-        lock.readLock().lock();
+        lock.writeLock().lock();
         try {
             if (cache.containsKey(key)) {
                 hits.incrementAndGet();
@@ -34,7 +34,7 @@ public abstract class AbstractFixedSizeCache<K, V> implements FixedSizeCache<K, 
             misses.incrementAndGet();
             return null;
         } finally {
-            lock.readLock().unlock();
+            lock.writeLock().unlock();
         }
     }
 
