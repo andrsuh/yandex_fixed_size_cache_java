@@ -90,6 +90,11 @@ public class AdvancedLFUCache<K, V> extends AbstractFixedSizeCache<K, V> {
         }
     }
 
+    @Override
+    public int size() {
+        return lfuCache.size();
+    }
+
     private void remove() {
 //        System.out.println("Size before: " + lfuCache.size());
         if (headFrequency.next == null) {
