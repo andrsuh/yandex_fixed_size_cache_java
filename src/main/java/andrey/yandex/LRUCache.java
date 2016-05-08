@@ -1,9 +1,11 @@
+package andrey.yandex;
+
 import java.util.*;
 
 /**
  * Created by andrey on 03.05.16.
  */
-public class LRUCache<K, V> extends FixedSizeCache<K, V> {
+public class LRUCache<K, V> extends AbstractFixedSizeCache<K, V> {
 
     public LRUCache(int capacity) {
         super(

@@ -1,3 +1,5 @@
+package andrey.yandex;
+
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -5,8 +7,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 /**
  * Created by andrey on 03.05.16.
  */
-public abstract class FixedSizeCache <K, V> {
-    private static final int DEFAULT_CAPACITY = 64;
+
+public abstract class AbstractFixedSizeCache<K, V> implements FixedSizeCache<K, V> {
+    protected final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+    protected static final int DEFAULT_CAPACITY = 64;
 
     protected final Map<K, V> cache;
     protected final int capacity;
@@ -14,21 +18,21 @@ public abstract class FixedSizeCache <K, V> {
     protected AtomicLong hits = new AtomicLong(0);  // number of successful attempts to get value for a key
     protected AtomicLong misses = new AtomicLong(0); // number of failed attempts
 
-    protected final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
-    public FixedSizeCache(int capacity) {
+    protected AbstractFixedSizeCache(int capacity) {
         this(null, capacity);
     }
 
-    public FixedSizeCache(Map<K, V> cache) {
+    protected AbstractFixedSizeCache(Map<K, V> cache) {
         this(cache, DEFAULT_CAPACITY);
     }
 
-    public FixedSizeCache(Map<K, V> cache, int capacity) {
+    protected AbstractFixedSizeCache(Map<K, V> cache, int capacity) {
         this.cache = cache;
         this.capacity = capacity;
     }
 
+    @Override
     public V get(K key) {
         lock.readLock().lock();
         try {
@@ -44,7 +48,8 @@ public abstract class FixedSizeCache <K, V> {
         }
     }
 
-    public void put(K key, V value){
+    @Override
+    public void put(K key, V value) {
         lock.writeLock().lock();
         try {
             cache.put(key, value);
@@ -53,6 +58,17 @@ public abstract class FixedSizeCache <K, V> {
         }
     }
 
+    @Override
+    public int size() {
+        lock.readLock().lock();
+        try {
+            return cache.size();
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    @Override
     public boolean contains(K key) {
         lock.readLock().lock();
         try {
@@ -62,6 +78,7 @@ public abstract class FixedSizeCache <K, V> {
         }
     }
 
+    @Override
     public void clear() {
         lock.writeLock().lock();
         try {
@@ -73,10 +90,12 @@ public abstract class FixedSizeCache <K, V> {
         }
     }
 
+    @Override
     public long getHits() {
         return hits.longValue();
     }
 
+    @Override
     public long getMisses() {
         return misses.longValue();
     }

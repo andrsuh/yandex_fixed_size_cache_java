@@ -1,3 +1,5 @@
+package andrey.yandex;
+
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -5,7 +7,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * Created by andrey on 06.05.16.
  */
 
-public class AdvancedLFUCache <K, V> extends FixedSizeCache<K, V> {
+public class AdvancedLFUCache<K, V> extends AbstractFixedSizeCache<K, V> {
     private final Map<K, Map.Entry<V, FreqNode<K>>> lfuCache = new HashMap<>();
 
     private FreqNode<K> headFrequency;
@@ -141,7 +143,7 @@ public class AdvancedLFUCache <K, V> extends FixedSizeCache<K, V> {
         }
     }
 
-    public static int fibbWithCache(int n, FixedSizeCache<Integer, Integer> cache) {
+    public static int fibbWithCache(int n, AbstractFixedSizeCache<Integer, Integer> cache) {
         if (n < 2) {
             return 1;
         }
