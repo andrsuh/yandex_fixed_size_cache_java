@@ -10,7 +10,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public abstract class AbstractFixedSizeCache<K, V> implements FixedSizeCache<K, V> {
     protected final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
-    protected static final int DEFAULT_CAPACITY = 64;
 
     protected final Map<K, V> cache;
     protected final int capacity;
@@ -19,13 +18,13 @@ public abstract class AbstractFixedSizeCache<K, V> implements FixedSizeCache<K, 
     protected AtomicLong misses = new AtomicLong(0); // number of failed attempts
 
 
-    protected AbstractFixedSizeCache(int capacity) {
-        this(null, capacity);
-    }
-
-    protected AbstractFixedSizeCache(Map<K, V> cache) {
-        this(cache, DEFAULT_CAPACITY);
-    }
+//    protected AbstractFixedSizeCache(int capacity) {
+//        this(null, capacity);
+//    }
+//
+//    protected AbstractFixedSizeCache(Map<K, V> cache) {
+//        this(cache, DEFAULT_CAPACITY);
+//    }
 
     protected AbstractFixedSizeCache(Map<K, V> cache, int capacity) {
         this.cache = cache;
