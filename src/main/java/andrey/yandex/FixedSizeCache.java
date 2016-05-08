@@ -5,6 +5,8 @@ package andrey.yandex;
  */
 
 public interface FixedSizeCache<K, V> {
+    int DEFAULT_CAPACITY = 64;
+
     V get(K key);
     void put(K key, V value);
     int size();
