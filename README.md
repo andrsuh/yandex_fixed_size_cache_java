@@ -1,5 +1,7 @@
 Задание на вакансию стажёра-разработчика в Web-ранжировании (C++/Python)
 
+Репозиторий: https://github.com/andrsuh/yandex_fixed_size_cache_java
+
 Реализация fixed size cache.
 Релизованы классы LRUCache, FIFOCache, LFUCache 
 поддерживающие разные стратегии вытеснения элементов (LRU, LFU,
