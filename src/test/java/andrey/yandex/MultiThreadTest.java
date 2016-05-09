@@ -9,7 +9,7 @@ import java.util.concurrent.CountDownLatch;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
-public class MultyThreadTest {
+public class MultiThreadTest {
     private static final long parameter = 30;
     private static CountDownLatch latch;
     private static long correctResult;

@@ -8,7 +8,6 @@ package andrey.yandex;
  */
 
 public interface FixedSizeCache<K, V> {
-    int DEFAULT_CAPACITY = 64;
 
     /**
      * @param key the key whose associated value is to be returned
