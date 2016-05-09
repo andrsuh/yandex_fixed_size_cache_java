@@ -10,7 +10,7 @@ import java.util.concurrent.CountDownLatch;
 import static org.fest.assertions.api.Assertions.assertThat;
 
 public class MultiThreadTest {
-    private static final long parameter = 30;
+    private static final long parameter = 40;
     private static CountDownLatch latch;
     private static long correctResult;
     private final List<CalculateFibonacci> threads = new ArrayList<>();
@@ -33,7 +33,6 @@ public class MultiThreadTest {
         FixedSizeCache<Long, Long> cache = new LRUCache<>(20);
         assertThat(test(cache)).isTrue();
         assertThat(cache.getHits()).isGreaterThan(0);
-        System.out.println(cache.size());
         assertThat(cache.size()).isLessThanOrEqualTo(20);
     }
 
@@ -58,7 +57,8 @@ public class MultiThreadTest {
         FixedSizeCache<Long, Long> cache = new AdvancedLFUCache<>(20);
         assertThat(test(cache)).isTrue();
         assertThat(cache.getHits()).isGreaterThan(0);
-        assertThat(cache.size()).isLessThanOrEqualTo(20);    }
+        assertThat(cache.size()).isLessThanOrEqualTo(20);
+    }
 
     private boolean test(FixedSizeCache<Long, Long> cache) {
         for (int i = 0; i < 100; i++) {
